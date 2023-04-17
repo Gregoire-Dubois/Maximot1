@@ -1,0 +1,119 @@
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        
+        dansLedico();
+
+    }
+
+    // fonction de tirage au sort d'un mot
+    protected static ArrayList <Character> tirerMotAleatoirement() {
+
+        ArrayList <String> dico = new ArrayList<>();
+        ArrayList<Character> caractereWord = new ArrayList<>();
+
+        // ouvrir le fichier et récupérer le nombre de ligne
+        int ligne = 0;
+
+        try (FileInputStream file = new FileInputStream("src/dictionnaire.txt");
+             Scanner out = new Scanner(file)) {
+
+            while (out.hasNextLine()) {
+                dico.add(String.valueOf(out.nextLine()));
+                ligne++;
+            }
+
+        } catch (IOException e) {
+            System.out.println("erreur sur le fichier");
+        }
+        // générer un numéro entre 0 et le max de ligne du ficher TXT
+
+        int minDico = 0;
+        int maxDico = ligne;
+        Random randomNumberLine = new Random();
+
+        int alea = randomNumberLine.nextInt(minDico, maxDico);
+
+        // afficher le mot tiré aléatoirement avec alea
+        System.out.println("Le mot aléatoire est : " + dico.get(alea));
+
+        // passer le mot dico en caractères
+        char caractere =' ';
+
+        for (int i = 0; i < dico.get(alea).length(); i++){
+            caractere = dico.get(alea).charAt(i);
+            caractereWord.add(i, caractere);
+        }
+        return caractereWord;
+    }
+
+    // fonction pour mélanger les caractères du mot tiré au sort
+    protected static ArrayList <Character> melanger() {
+        ArrayList <Character> touilleur = new ArrayList<>();
+        touilleur = tirerMotAleatoirement();
+        Collections.shuffle(touilleur);
+        return touilleur;
+    }
+
+    // Fonction pour afficher le mot tiré au sort avec les lettres mélangées
+    protected static void afficher(){
+        ArrayList<Character> arrayAffichage = melanger();
+        System.out.println(arrayAffichage);
+    }
+
+    // Fonction pour vérifier si la saisie utilisateur est bien dans le dictionnaire
+    protected static void dansLedico(){
+
+        ArrayList <Character> arrayListTirerMot = tirerMotAleatoirement();
+        String strTirerMot= "";
+        for(char c : arrayListTirerMot ){
+            strTirerMot += c;
+        }
+
+        int chances = 4;
+        System.out.println("---> " + strTirerMot);
+        Scanner question = new Scanner(System.in);
+
+        int positifRes = 0;
+        String wordMatch = " ";
+
+        while (chances>0 && positifRes!=2) {
+            System.out.println("Entrez votre proposition pour trouver le mot");
+            String proposition = question.nextLine();
+            System.out.println("Vous avez saisi : " + proposition);
+
+            try (FileInputStream file = new FileInputStream("src/dictionnaire.txt");
+                 Scanner out = new Scanner(file)) {
+
+                while (out.hasNextLine() && positifRes != 2) {
+                    wordMatch = out.nextLine();
+
+                    if (proposition.equalsIgnoreCase(wordMatch)) {
+                        if (proposition.equalsIgnoreCase(strTirerMot)) {
+                            positifRes = 2;
+                        } else {
+                            positifRes = 1;
+                        }
+                    }
+                }
+                switch (positifRes) {
+                    case 1 -> System.out.println("Désolé ce n'est pas ce mot la");
+                    case 2 -> System.out.println("gagné");
+                    default -> System.out.println("mot non répertorié dans notre dictionnaire");
+                }
+
+            } catch (IOException e) {
+                System.out.println("erreur sur le fichier");
+            }
+        chances--;
+            if (chances== 0){
+                System.out.println("Pas de chance le bon mot était : " + strTirerMot);
+            }
+        }
+        question.close();
+
+    }
+}
